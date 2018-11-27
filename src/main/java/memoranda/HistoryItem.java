@@ -9,6 +9,8 @@
 package main.java.memoranda;
 
 import main.java.memoranda.date.CalendarDate;
+import main.java.memoranda.interfaces.INote;
+import main.java.memoranda.interfaces.IProject;
 
 /**
  * 
@@ -17,16 +19,16 @@ import main.java.memoranda.date.CalendarDate;
 public class HistoryItem {
     
     private CalendarDate _date;
-    private Project _project;
+    private IProject _project;
     /**
      * Constructor for HistoryItem.
      */
-    public HistoryItem(CalendarDate date, Project project) {
+    public HistoryItem(CalendarDate date, IProject project) {
         _date = date;
         _project = project;
     }
     
-    public HistoryItem(Note note) {
+    public HistoryItem(INote note) {
         _date = note.getDate();
         _project = note.getProject();
     }
@@ -35,7 +37,7 @@ public class HistoryItem {
        return _date;
     }
     
-    public Project getProject() {
+    public IProject getProject() {
        return _project;
     }
     

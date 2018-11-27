@@ -13,6 +13,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import main.java.memoranda.interfaces.IEvent;
+import main.java.memoranda.interfaces.IEventNotificationListener;
+import main.java.memoranda.ui.EventNotificationDialog;
+
 /**
  *
  */
@@ -25,7 +29,20 @@ public class EventsScheduler {
     static Timer changeDateTimer = new Timer();
 
     static {
-        addListener(new DefaultEventNotifier());            
+        // TASK 2-2 SMELL BETWEEN CLASSES 
+        // < Class DefaultEventNotifier did too little, migrated the code here and put inside
+        // a new IEventNotificationListener() object. >
+        addListener(new IEventNotificationListener() {
+
+            public void eventIsOccured(IEvent ev) {
+                new EventNotificationDialog(
+                        "Memoranda event",
+                        ev.getTimeString(),
+                        ev.getText());
+            }
+
+            public void eventsChanged() {}     
+        });            
     }
 
     public static void init() {
@@ -35,7 +52,7 @@ public class EventsScheduler {
         _timers = new Vector();
         /*DEBUG*/System.out.println("----------");
         for (int i = 0; i < events.size(); i++) {
-            Event ev = (Event)events.get(i);
+            IEvent ev = (IEvent)events.get(i);
             Date evTime = ev.getTime();
         /*DEBUG*/System.out.println((Calendar.getInstance()).getTime());
           //  if (evTime.after(new Date())) {
@@ -71,11 +88,11 @@ public class EventsScheduler {
         return v;
     }
     
-    public static Event getFirstScheduledEvent() {
+    public static IEvent getFirstScheduledEvent() {
         if (!isEventScheduled()) return null;
-        Event e1 = ((EventTimer)_timers.get(0)).getEvent();
+        IEvent e1 = ((EventTimer)_timers.get(0)).getEvent();
         for (int i = 1; i < _timers.size(); i++) { 
-            Event ev = ((EventTimer)_timers.get(i)).getEvent();
+            IEvent ev = ((EventTimer)_timers.get(i)).getEvent();
             if (ev.getTime().before(e1.getTime()))
                 e1 = ev;
         }
@@ -83,7 +100,7 @@ public class EventsScheduler {
     }
             
 
-    public static void addListener(EventNotificationListener enl) {
+    public static void addListener(IEventNotificationListener enl) {
         _listeners.add(enl);
     }
 
@@ -91,14 +108,14 @@ public class EventsScheduler {
         return _timers.size() > 0;
     }
         
-    private static void notifyListeners(Event ev) {
+    private static void notifyListeners(IEvent ev) {
         for (int i = 0; i < _listeners.size(); i++)
-            ((EventNotificationListener)_listeners.get(i)).eventIsOccured(ev);
+            ((IEventNotificationListener)_listeners.get(i)).eventIsOccured(ev);
     }
 
     private static void notifyChanged() {
         for (int i = 0; i < _listeners.size(); i++)
-            ((EventNotificationListener)_listeners.get(i)).eventsChanged();
+            ((IEventNotificationListener)_listeners.get(i)).eventsChanged();
     }
 
     private static Date getMidnight() {
@@ -129,14 +146,14 @@ public class EventsScheduler {
     }
     
     static class EventTimer extends Timer {
-        Event _event;
+        IEvent _event;
         
-        public EventTimer(Event ev) {
+        public EventTimer(IEvent ev) {
             super();
             _event = ev;
         }
         
-        public Event getEvent() {
+        public IEvent getEvent() {
             return _event;
         }
     }

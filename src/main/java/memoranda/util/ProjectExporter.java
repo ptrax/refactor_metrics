@@ -13,6 +13,9 @@ import javax.swing.text.html.HTMLDocument;
 
 import main.java.memoranda.*;
 import main.java.memoranda.date.CalendarDate;
+import main.java.memoranda.interfaces.INote;
+import main.java.memoranda.interfaces.INoteList;
+import main.java.memoranda.interfaces.IProject;
 import main.java.memoranda.ui.*;
 import main.java.memoranda.ui.htmleditor.AltHTMLWriter;
 
@@ -33,7 +36,7 @@ public class ProjectExporter {
     
     static String charsetString = "\n";
 
-    public static void export(Project prj, File f, String charset,
+    public static void export(IProject prj, File f, String charset,
             boolean xhtml, boolean chunked, boolean navigation, boolean num,
             boolean titlesAsHeaders, boolean copyImages) {
 
@@ -48,7 +51,7 @@ public class ProjectExporter {
             output = new File(f.getPath() + "/index.html");
         else
             output = f;
-        NoteList nl = CurrentStorage.get().openNoteList(prj);
+        INoteList nl = CurrentStorage.get().openNoteList(prj);
         Vector notes = (Vector) nl.getAllNotes();
         //NotesVectorSorter.sort(notes);
         Collections.sort(notes);
@@ -98,7 +101,7 @@ public class ProjectExporter {
     private static void generateToc(Writer w, Vector notes) {
         write(w, "<div class=\"toc\"><ul>\n");
         for (Iterator i = notes.iterator(); i.hasNext(); ) {
-            Note note = (Note) i.next();
+            INote note = (INote) i.next();
             String link = "";
             CalendarDate d = note.getDate();
             String id = note.getId();
@@ -113,7 +116,7 @@ public class ProjectExporter {
         write(w, "</ul></div>\n");
     }
 
-    private static String getNoteHTML(Note note) {
+    private static String getNoteHTML(INote note) {
         String text = "";
         StringWriter sw = new StringWriter();
         AltHTMLWriter writer = new AltHTMLWriter(sw,
@@ -153,7 +156,7 @@ public class ProjectExporter {
         return text;
     }
 
-    private static String generateNav(Note prev, Note next) {
+    private static String generateNav(INote prev, INote next) {
         String s = "<hr></hr><div class=\"navigation\"><table border=\"0\" width=\"100%\" cellpadding=\"2\"><tr><td width=\"33%\">";
         if (prev != null)   
             s += "<div class=\"navitem\"><a href=\"" + prev.getId() + ".html\">"
@@ -181,7 +184,7 @@ public class ProjectExporter {
     private static void generateChunks(Writer w, Vector notes) {
         Object[] n = notes.toArray();
         for (int i = 0; i < n.length; i++) {
-            Note note = (Note) n[i];
+            INote note = (INote) n[i];
             CalendarDate d = note.getDate();
             if (_chunked) {
                 File f = new File(output.getParentFile().getPath() + "/"
@@ -197,12 +200,12 @@ public class ProjectExporter {
                     String s = "<html>\n<head>\n"+charsetString+"<title>" + note.getTitle()
                             + "</title>\n</head>\n<body>\n" + getNoteHTML(note);
                     if (_navigation) {
-                        Note nprev = null;
+                        INote nprev = null;
                         if (i > 0)
-                            nprev = (Note) n[i - 1];
-                        Note nnext = null;
+                            nprev = (INote) n[i - 1];
+                        INote nnext = null;
                         if (i < n.length - 1)
-                            nnext = (Note) n[i + 1];
+                            nnext = (INote) n[i + 1];
                         s += generateNav(nprev, nnext);
                     }
                     s += "\n</body>\n</html>";

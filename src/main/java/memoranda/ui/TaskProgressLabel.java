@@ -30,7 +30,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import javax.swing.JLabel;
 
-import main.java.memoranda.Task;
+import main.java.memoranda.interfaces.ITask;
 
 /**
  * <h1>TaskProgressLabel</h1>
@@ -45,12 +45,12 @@ import main.java.memoranda.Task;
 class TaskProgressLabel extends JLabel{
     TaskTable table;
     int column;
-    Task task;
+    ITask task;
     public TaskProgressLabel( TaskTable table ){
         this.table = table;
         setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
     }
-    public void setTask(Task t){ task = t;}
+    public void setTask(ITask t){ task = t;}
     public void setColumn(int col){ column = col;}
     
     public void paintComponent(Graphics g) {

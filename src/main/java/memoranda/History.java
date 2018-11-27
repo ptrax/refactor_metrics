@@ -20,6 +20,8 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 
+import main.java.memoranda.interfaces.IHistoryListener;
+import main.java.memoranda.interfaces.IProject;
 import main.java.memoranda.util.Local;
 /**
  * 
@@ -28,7 +30,8 @@ import main.java.memoranda.util.Local;
 public class History {
 
     static Vector _list = new Vector();
-    static int p = -1;
+    // TASK 2-1 SMELL WITHIN A CLASS
+    static int prevIndex = -1;
     static Vector historyListeners = new Vector();
     static Object next = null;
     static Object prev = null;     
@@ -36,12 +39,12 @@ public class History {
     public static void add(HistoryItem item) {
         if (prev != null)   
             if (item.equals(prev)) return;
-        if (p < _list.size() - 1)
-            _list.setSize(p + 1);
+        if (prevIndex < _list.size() - 1)
+            _list.setSize(prevIndex + 1);
         _list.add(item);
-        p = _list.size() - 1;
-        if (p > 0)   
-            prev = _list.get(p-1);
+        prevIndex = _list.size() - 1;
+        if (prevIndex > 0)   
+            prev = _list.get(prevIndex-1);
         else
             prev = null;
         next = null;
@@ -57,18 +60,18 @@ public class History {
 
     public static HistoryItem rollBack() {        
         Object n = prev;        
-        if (p > 1) {                          
-            p--;
-            prev = _list.get(p-1);
+        if (prevIndex > 1) {                          
+            prevIndex--;
+            prev = _list.get(prevIndex-1);
         } 
-        else if (p > 0) {
-            p--;
+        else if (prevIndex > 0) {
+            prevIndex--;
             prev = null;
         }
         else 
             prev = null;      
-        if (p < _list.size() - 1)
-            next = _list.get(p+1);
+        if (prevIndex < _list.size() - 1)
+            next = _list.get(prevIndex+1);
         else
             next = null;         
         return (HistoryItem)n;
@@ -76,16 +79,16 @@ public class History {
 
     public static HistoryItem rollForward() {
         Object n = next;        
-        if (p < _list.size() - 1) {
-            p++;
-            if (p == 1) 
-                p++;
-            next = _list.get(p);            
+        if (prevIndex < _list.size() - 1) {
+            prevIndex++;
+            if (prevIndex == 1) 
+                prevIndex++;
+            next = _list.get(prevIndex);            
         }        
         else
             next = null;
-        if (p > 0)
-            prev = _list.get(p-1);
+        if (prevIndex > 0)
+            prev = _list.get(prevIndex-1);
         else 
             prev = null;
         return (HistoryItem)n;    
@@ -99,11 +102,11 @@ public class History {
         return next != null;
     }
 
-    public static void addHistoryListener(HistoryListener hl) {
+    public static void addHistoryListener(IHistoryListener hl) {
         historyListeners.add(hl);
     }
     
-    public static void removeProjectHistory(Project prj) {
+    public static void removeProjectHistory(IProject prj) {
         Vector list = new Vector();
         String id;
         
@@ -111,19 +114,19 @@ public class History {
             id = (((HistoryItem) _list.elementAt(i)).getProject()).getID();
             if (id.equals(prj.getID())) {
                 list.add(_list.elementAt(i));
-                p--;
+                prevIndex--;
                 if (_list.elementAt(i).equals(prev)) {
-                    if (p > 0) prev = _list.get(p - 1);
+                    if (prevIndex > 0) prev = _list.get(prevIndex - 1);
                     else prev = null;
                 }
             }
         }
         if (!list.isEmpty()) {
             _list.removeAll(list);
-            if (p < 0) {
-                p = 0;
+            if (prevIndex < 0) {
+                prevIndex = 0;
             }
-            _list.setSize(p);
+            _list.setSize(prevIndex);
             next = null;
             historyBackAction.update();
             historyForwardAction.update();
@@ -132,7 +135,7 @@ public class History {
 
     private static void notifyListeners(HistoryItem n) {
         for (int i = 0; i < historyListeners.size(); i++)            
-                 ((HistoryListener) historyListeners.get(i)).historyWasRolledTo(n);
+                 ((IHistoryListener) historyListeners.get(i)).historyWasRolledTo(n);
     }
 
     public static HistoryBackAction historyBackAction = new HistoryBackAction();

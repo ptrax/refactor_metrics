@@ -20,7 +20,7 @@ import org.apache.xml.serialize.XMLSerializer;
 import org.cyberneko.html.parsers.SAXParser;
 import org.xml.sax.InputSource;
 
-import main.java.memoranda.Note;
+import main.java.memoranda.interfaces.INote;
 import main.java.memoranda.ui.ExceptionDialog;
 import main.java.memoranda.ui.htmleditor.AltHTMLWriter;
 /**
@@ -32,14 +32,14 @@ public class HTMLFileExport {
     String charset = "";
     File f = null;
     HTMLDocument doc;
-    Note note = null;
+    INote note = null;
     boolean xhtml = false;
     boolean num = false;
     String templFile = null;
     /**
      * Constructor for HTMLFileExport.
      */
-    public HTMLFileExport(File f, Document doc, Note note, String charset, boolean num, String templFile, boolean xhtml) {
+    public HTMLFileExport(File f, Document doc, INote note, String charset, boolean num, String templFile, boolean xhtml) {
         this.f = f;
         this.doc = (HTMLDocument)doc;
         this.note = note;
